@@ -18,6 +18,10 @@ class Process {
 
   // TODO: Declare any necessary private members
  private:
+    int PID {0}; //Set PID to default of 0.  
+    string user {""}; //Set user to default of a blank string.  
+    string command {""}; //Set command to default of a blank string.
+    //All other values will mostly change repeatedly over time, thus it would be better that their respective functions call LinuxParser to parse their status each time.  
 };
 
 #endif
