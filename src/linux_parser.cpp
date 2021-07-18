@@ -67,7 +67,29 @@ vector<int> LinuxParser::Pids() {
 }
 
 // TODO: Read and return the system memory utilization
-float LinuxParser::MemoryUtilization() { return 0.0; }
+float LinuxParser::MemoryUtilization() 
+{
+  string parsingLine, totalMem, freeMem, tag, value;
+  float usedMem;
+  std::ifstream parseFileStream(kProcDirectory + kMeminfoFilename);
+  if(parseFileStream.is_open())
+  {
+    while(std::getline(parseFileStream, parsingLine))
+    {
+      std::replace(parsingLine.begin(), parsingLine.end(), ":", " ");
+      std::istringstream parseStream(parsingLine);
+      while(parseStream >> tag >> value)
+      {
+        if(tag.compare("MemTotal"))
+          totalMem = value;
+        if(tag.compare("MemFree"));
+          freeMem = value;
+      }
+    }
+  }
+  usedMem = std::stof(totalMem) - std::stof(freeMem);
+  return ((usedMem / std::stof(totalMem)) * 100);
+}
 
 // TODO: Read and return the system uptime
 long LinuxParser::UpTime() 
@@ -85,20 +107,62 @@ long LinuxParser::UpTime()
 }
 
 // TODO: Read and return the number of jiffies for the system
-long LinuxParser::Jiffies() { return 0; }
+long LinuxParser::Jiffies() { return ActiveJiffies() + IdleJiffies(); }
 
 // TODO: Read and return the number of active jiffies for a PID
 // REMOVE: [[maybe_unused]] once you define the function
 long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) { return 0; }
 
 // TODO: Read and return the number of active jiffies for the system
-long LinuxParser::ActiveJiffies() { return 0; }
+long LinuxParser::ActiveJiffies() 
+{
+  string parseLine, cpuTag, userTag, niceTag, systemTag, idleTag, ioWaitTag, irqTag, softIRQTag, stealTag;
+  long activeTUnits;
+  std::ifstream parseFileStream(kProcDirectory + kStatFilename);
+  if(parseFileStream.is_open())
+  {
+    while(std::getline(parseFileStream, parseLine))
+    {
+      std::istringstream parseStream(parseLine);
+      while(parseStream >> cpuTag >> userTag >> niceTag >> systemTag >> idleTag >> ioWaitTag >> irqTag >> softIRQTag >> stealTag)
+      {
+        if(cpuTag.compare("cpu"))
+        {
+          activeTUnits = std::stol(userTag) + std::stol(niceTag) + std::stol(systemTag) + std::stol(irqTag) + std::stol(softIRQTag) + std::stol(stealTag);
+          return activeTUnits;
+        }
+      }
+    }
+  }
+  return activeTUnits; //Although there will always be a line for "cpu" in the stat file, the compiler does not know this nore what I am trying to do, if I do not add a return statment here, the compiler may complain.  
+}
 
 // TODO: Read and return the number of idle jiffies for the system
-long LinuxParser::IdleJiffies() { return 0; }
+long LinuxParser::IdleJiffies() 
+{
+  string parseLine, cpuTag, userTag, niceTag, systemTag, ildeTag, ioWaitTag;
+  long idleTUnits;
+  std::ifstream parseFileStream(kProcDirectory + kStatFilename);
+  if(parseFileStream.is_open())
+  {
+    while(std::getline(parseFileStream, parseLine))
+    {
+      std::istringstream parseStream(parseLine);
+      while(parseStream >> cpuTag >> userTag >> niceTag >> systemTag >> ildeTag >> ioWaitTag)
+      {
+        idleTUnits = std::stol(ildeTag) + std::stol(ioWaitTag);
+        return idleTUnits;
+      }
+    }
+  }
+  return idleTUnits; //Although there will always be a line for "cpu" in the stat file, the compiler does not know this nore what I am trying to do, if I do not add a return statment here, the compiler may complain.  
+}
 
 // TODO: Read and return CPU utilization
-vector<string> LinuxParser::CpuUtilization() { return {}; }
+vector<string> LinuxParser::CpuUtilization() 
+{
+  
+}
 
 // TODO: Read and return the total number of processes
 int LinuxParser::TotalProcesses() 
@@ -117,7 +181,7 @@ int LinuxParser::TotalProcesses()
       }
     }
   }
-  return std::stoi(value); //Although there will always be a "processes" in the stat file, c++ does not know this nor does it know what I am trying to do, and if the return statment here is not placed in the code, the compiler may complain.  
+  return std::stoi(value); //Although there will always be a "processes" in the stat file, the compiler does not know this nor does it know what I am trying to do, and if the return statment here is not placed in the code, the compiler may complain.  
 }
 
 // TODO: Read and return the number of running processes
@@ -137,7 +201,7 @@ int LinuxParser::RunningProcesses()
       }
     }
   }
-  return std::stoi(value); //Although there will always be a procs_running in the stat file, c++ does not know this nor does it know what I am trying to do, and if the return statment here is not placed in the code, the compiler may complain.  
+  return std::stoi(value); //Although there will always be a procs_running in the stat file, the compiler does not know this nor does it know what I am trying to do, and if the return statment here is not placed in the code, the compiler may complain.  
 }
 
 // TODO: Read and return the command associated with a process
@@ -156,7 +220,29 @@ string LinuxParser::Command(int pid)
 
 // TODO: Read and return the memory used by a process
 // REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::Ram(int pid[[maybe_unused]]) { return string(); to be done;}
+string LinuxParser::Ram(int pid) 
+{
+  string parsingLine, usage, tag, value;
+  std::ifstream parseFileStream(kProcDirectory + std::to_string(pid) + kStatusFilename);
+  if(parseFileStream.is_open())
+  {
+    while(std::getline(parseFileStream, parsingLine))
+    {
+      std::replace(parsingLine.begin(), parsingLine.end(), ":", " ");
+      std::istringstream parseStream(parsingLine);
+      while(parseStream >> tag >> value)
+      {
+        if(tag.compare("VmSize") == 0) // The VmSize field represents the memory usage of the process.  
+        {
+          int usageInMB = std::stoi(value) / 1024;
+          usage = std::to_string(usageInMB);
+          return usage;
+        }
+      }
+    }
+  }
+  return usage; //There are instances on some flavors of Linux where VmSize is not listed in the status file of a process.  An example would be a system task running on Kali Linux.  
+}
 
 // TODO: Read and return the user ID associated with a process
 // REMOVE: [[maybe_unused]] once you define the function
@@ -177,7 +263,7 @@ string LinuxParser::Uid(int pid)
       }
     }
   }
-  return value; //Although there always is a line for UID in every status file, C++ does not know that or what I am trying to do, and the compiler will throw an error.  
+  return value; //Although there always is a line for UID in every status file, the compiler does not know that or what I am trying to do, and the compiler will throw an error.  
 }
 
 // TODO: Read and return the user associated with a process
@@ -204,9 +290,9 @@ string LinuxParser::User(int pid)
       }
     }
   }
-  return user; //Although there always will be a user for every UID that invoked a process, C++ does not know that or what I am trying to do, and the compiler will throw an error if this return statement does not exist.  
+  return user; //Although there always will be a user for every UID that invoked a process, the compiler does not know that or what I am trying to do, and the compiler will throw an error if this return statement does not exist.  
 }
 
 // TODO: Read and return the uptime of a process
 // REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::UpTime(int pid[[maybe_unused]]) { return 0; to be done;}
+long LinuxParser::UpTime(int pid) { return 0; to be done;}
