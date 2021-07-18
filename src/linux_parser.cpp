@@ -111,7 +111,18 @@ long LinuxParser::Jiffies() { return ActiveJiffies() + IdleJiffies(); }
 
 // TODO: Read and return the number of active jiffies for a PID
 // REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) { return 0; }
+long LinuxParser::ActiveJiffies(int pid) 
+{
+  string parseLine, a, b, c, d, e, f, g, h, i, j, k, l, m, userTime, sysTime, childUserTime, childSysTime;
+  std::ifstream parseFileStream(kProcDirectory + std::to_string(pid) + kStatFilename);
+  if(parseFileStream.is_open())
+  {
+    std::getline(parseFileStream, parseLine);
+    std::istringstream parseStream(parseLine);
+    parseStream >> a >> b >> c >> d >> e >> f >> g >> h >> i >> j >> k >> l >> m >> userTime >> sysTime >> childUserTime >> childSysTime;
+    return ((std::stol(userTime)) + (std::stol(sysTime)) + (std::stol(childUserTime)) + (std::stol(childSysTime)));
+  }
+}
 
 // TODO: Read and return the number of active jiffies for the system
 long LinuxParser::ActiveJiffies() 
@@ -161,7 +172,9 @@ long LinuxParser::IdleJiffies()
 // TODO: Read and return CPU utilization
 vector<string> LinuxParser::CpuUtilization() 
 {
-  
+  vector<string> utilization(1);
+  utilization[0] = std::to_string(((float)ActiveJiffies()) / ((float)Jiffies()));
+  return utilization;
 }
 
 // TODO: Read and return the total number of processes
@@ -295,4 +308,35 @@ string LinuxParser::User(int pid)
 
 // TODO: Read and return the uptime of a process
 // REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::UpTime(int pid) { return 0; to be done;}
+long LinuxParser::UpTime(int pid) 
+{
+  string versionToParse = Kernel();
+  string bigRelease, release, subRelease;
+  std::replace(versionToParse.begin(), versionToParse.end(), ".", " ");
+  std::istringstream versStreamParse(versionToParse);
+  versStreamParse >> bigRelease >> release >> subRelease;
+  if(((std::stoi(bigRelease)) > 2) || ((std::stoi(bigRelease) == 2) && (std::stoi(release) > 5))) //No need to do diving by clockticks in Linux version 2.6 and later, according to man page documentation.  
+  {
+    string parsingLine, a, b, c, d, e, f, g, h, i, j, k, l, m, userTime, sysTime, childUserTime, childSysTime, n, o, p, q, startTime;
+    std::ifstream parseFileStream(kProcDirectory + std::to_string(pid) + kStatFilename);
+    if(parseFileStream.is_open())
+    {
+      std::getline(parseFileStream, parsingLine);
+      std::istringstream parseStream(parsingLine);
+      parseStream >> a >> b >> c >> d >> e >> f >> g >> h >> i >> j >> k >> l >> m >> userTime >> sysTime >> childUserTime >> childSysTime >> n >> o >> p >> q >> startTime;
+      return (UpTime() - (std::stol(startTime)));
+    }
+  }
+  else
+  {
+    string parsingLine, a, b, c, d, e, f, g, h, i, j, k, l, m, userTime, sysTime, childUserTime, childSysTime, n, o, p, q, startTime;
+    std::ifstream parseFileStream(kProcDirectory + std::to_string(pid) + kStatFilename);
+    if(parseFileStream.is_open())
+    {
+      std::getline(parseFileStream, parsingLine);
+      std::istringstream parseStream(parsingLine);
+      parseStream >> a >> b >> c >> d >> e >> f >> g >> h >> i >> j >> k >> l >> m >> userTime >> sysTime >> childUserTime >> childSysTime >> n >> o >> p >> q >> startTime;
+      return (UpTime() - ((std::stol(startTime)) / sysconf(_SC_CLK_TCK)));
+    }
+  }
+}
