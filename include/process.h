@@ -16,12 +16,16 @@ class Process {
   long int UpTime();                       // TODO: See src/process.cpp
   bool operator<(Process const& a) const;  // TODO: See src/process.cpp
 
+  void setPid(int p); //Added this setter class, as there needs to be some way to set the PID of a process.  
+
   // TODO: Declare any necessary private members
  private:
     int PID {0}; //Set PID to default of 0.  
+    float cpuUtil {00.0}; //Set cpuUtil to default of 00.0.  
+    long int Uptime {0}; //Set Uptime to default of 0.  
+    std::string RAM{""};//Set RAM to default of blank string.  
     std::string user {""}; //Set user to default of a blank string.  
     std::string command {""}; //Set command to default of a blank string.
-    //All other values will mostly change repeatedly over time, thus it would be better that their respective functions call LinuxParser to parse their status each time.  
 };
 
 #endif

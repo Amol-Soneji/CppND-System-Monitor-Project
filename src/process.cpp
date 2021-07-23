@@ -12,19 +12,16 @@ using std::to_string;
 using std::vector;
 
 // TODO: Return this process's ID
-int Process::Pid() { return 0; }
+int Process::Pid() 
+{
+    return PID;
+}
 
 // TODO: Return this process's CPU utilization
 float Process::CpuUtilization() 
 {
-    string parsingLine;
-    std::ifstream fileStream("/proc/" + std::to_string(PID) + "/stat");
-    if(fileStream.is_open())
-    {
-        std::getline(fileStream, parsingLine);
-        std::istringstream parserStream(parsingLine);
-        to be done;
-    }
+    cpuUtil = 100 * (((float) LinuxParser::ActiveJiffies(Pid())) / ((float) LinuxParser::UpTime(Pid())));
+    return cpuUtil;
 }
 
 // TODO: Return the command that generated this process
@@ -32,7 +29,7 @@ string Process::Command()
 { 
     if(command.compare("") == 0)
     {
-        command = LinuxParser::Command(PID);
+        command = LinuxParser::Command(Pid());
         return command;
     }
     else
@@ -40,14 +37,18 @@ string Process::Command()
 }
 
 // TODO: Return this process's memory utilization
-string Process::Ram() { return string(); }
+string Process::Ram() 
+{
+    RAM = LinuxParser::Ram(Pid());
+    return RAM;
+}
 
 // TODO: Return the user (name) that generated this process
 string Process::User() 
 {
     if(user.compare("") == 0)
     {
-        user = LinuxParser::User(PID);
+        user = LinuxParser::User(Pid());
         return user;
     }
     else
@@ -55,8 +56,24 @@ string Process::User()
 }
 
 // TODO: Return the age of this process (in seconds)
-long int Process::UpTime() { return LinuxParser::UpTime(PID); }
+long int Process::UpTime() 
+{
+    Uptime = LinuxParser::UpTime(Pid());
+    return Uptime;
+}
 
 // TODO: Overload the "less than" comparison operator for Process objects
 // REMOVE: [[maybe_unused]] once you define the function
-bool Process::operator<(Process const& a[[maybe_unused]]) const { return true; }
+bool Process::operator<(Process const& a) const 
+{
+    if(a.cpuUtil < cpuUtil)
+        return true;
+    else
+        return false;
+}
+
+//Added this setter class, as there needs to be some way to set the PID of a process.  
+void Process::setPid(int p)
+{
+    PID = p;
+}

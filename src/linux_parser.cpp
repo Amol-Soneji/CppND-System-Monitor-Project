@@ -111,7 +111,7 @@ long LinuxParser::Jiffies() { return ActiveJiffies() + IdleJiffies(); }
 
 // TODO: Read and return the number of active jiffies for a PID
 // REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::ActiveJiffies(int pid) 
+long LinuxParser::ActiveJiffies(int pid) //Accordin to man7.org for the man page of "/proc" the variables involved in the calc already have their clockticks divided by _SC_CLK_TCK.  
 {
   string parseLine, a, b, c, d, e, f, g, h, i, j, k, l, m, userTime, sysTime, childUserTime, childSysTime;
   std::ifstream parseFileStream(kProcDirectory + std::to_string(pid) + kStatFilename);
