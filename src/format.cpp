@@ -11,24 +11,24 @@ using std::string;
 string Format::ElapsedTime(long int seconds) //Had to switch this to long int as it was causing problems.  
 {
      string timeInHMS;
-     int minutes = seconds / 60;
-     int remainder = seconds % 60;
+     long int minutes = seconds / 60;
+     long int remainder = seconds % 60;
      string secondsString;
      if(remainder < 10)
-          secondsString = "0" + remainder;
+          secondsString = "0" + std::to_string(remainder);
      else
-          secondsString = remainder;
-     int hours = minutes / 60;
+          secondsString = std::to_string(remainder);
+     long int hours = minutes / 60;
      remainder = minutes % 60;
      string minuteString, hourString;
      if(remainder < 10)
-          minuteString = "0" + remainder;
+          minuteString = "0" + std::to_string(remainder);
      else
-          minuteString = remainder;
+          minuteString = std::to_string(remainder);
      if(hours < 10)
-          hourString = "0" + hours;
+          hourString = "0" + std::to_string(hours);
      else
-          hourString = hours;
+          hourString = std::to_string(hours);
      timeInHMS = hourString + ":" + minuteString + ":" + secondsString;
      return timeInHMS;
 }
