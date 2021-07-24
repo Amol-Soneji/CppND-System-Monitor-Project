@@ -94,7 +94,7 @@ float LinuxParser::MemoryUtilization()
   cout << totalMem + "\n";
   cout << freeMem + "\n";
   usedMem = std::stof(totalMem) - std::stof(freeMem);
-  return ((usedMem / std::stof(totalMem)) * 100);
+  return (usedMem / std::stof(totalMem));
 }
 
 // TODO: Read and return the system uptime
