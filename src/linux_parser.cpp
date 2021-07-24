@@ -86,7 +86,7 @@ float LinuxParser::MemoryUtilization()
       {
         if(tag.compare("MemTotal") == 0)
           totalMem = value;
-        if(tag.compare("MemFree") == 0);
+        else if(tag.compare("MemFree") == 0);
           freeMem = value;
       }
     }
