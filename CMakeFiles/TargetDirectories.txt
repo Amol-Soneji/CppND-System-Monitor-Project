@@ -1,3 +1,0 @@
-/home/amol/CppND-System-Monitor-Project-Updated/CMakeFiles/rebuild_cache.dir
-/home/amol/CppND-System-Monitor-Project-Updated/CMakeFiles/edit_cache.dir
-/home/amol/CppND-System-Monitor-Project-Updated/CMakeFiles/monitor.dir
