@@ -76,7 +76,7 @@ float LinuxParser::MemoryUtilization()
   {
     while(std::getline(parseFileStream, parsingLine))
     {
-      std::replace(parsingLine.begin(), parsingLine.end(), ":", " ");
+      std::replace(parsingLine.begin(), parsingLine.end(), ':', ' ');
       std::istringstream parseStream(parsingLine);
       while(parseStream >> tag >> value)
       {
@@ -241,7 +241,7 @@ string LinuxParser::Ram(int pid)
   {
     while(std::getline(parseFileStream, parsingLine))
     {
-      std::replace(parsingLine.begin(), parsingLine.end(), ":", " ");
+      std::replace(parsingLine.begin(), parsingLine.end(), ':', ' ');
       std::istringstream parseStream(parsingLine);
       while(parseStream >> tag >> value)
       {
@@ -267,7 +267,7 @@ string LinuxParser::Uid(int pid)
   {
     while(std::getline(parseFileStream, parsingLine))
     {
-      std::replace(parsingLine.begin(), parsingLine.end(), ":", " ");
+      std::replace(parsingLine.begin(), parsingLine.end(), ':', ' ');
       std::istringstream parseStream(parsingLine);
       while(parseStream >> key >> value) //I am only looking for the first value after UID key tag.  
       {
@@ -290,14 +290,14 @@ string LinuxParser::User(int pid)
   {
     while(std::getline(parseFileStream, parsingLine))
     {
-      std::replace(parsingLine.begin(), parsingLine.end(), " ", "_");
-      std::replace(parsingLine.begin(), parsingLine.end(), ":", " ");
+      std::replace(parsingLine.begin(), parsingLine.end(), ' ', '_');
+      std::replace(parsingLine.begin(), parsingLine.end(), ':', ' ');
       std::istringstream parseStream(parsingLine);
       while(parseStream >> user >> uValue)
       {
         if(uValue.compare(UID) == 0)
         {
-          std::replace(user.begin(), user.end(), "_", " "); //Convert any spaces that were formerly in username that were converted into "_", back into spaces.  
+          std::replace(user.begin(), user.end(), '_', ' '); //Convert any spaces that were formerly in username that were converted into "_", back into spaces.  
           return user;
         }
       }
@@ -312,7 +312,7 @@ long LinuxParser::UpTime(int pid)
 {
   string versionToParse = Kernel();
   string bigRelease, release, subRelease;
-  std::replace(versionToParse.begin(), versionToParse.end(), ".", " ");
+  std::replace(versionToParse.begin(), versionToParse.end(), '.', ' ');
   std::istringstream versStreamParse(versionToParse);
   versStreamParse >> bigRelease >> release >> subRelease;
   if(((std::stoi(bigRelease)) > 2) || ((std::stoi(bigRelease) == 2) && (std::stoi(release) > 5))) //No need to do diving by clockticks in Linux version 2.6 and later, according to man page documentation.  
