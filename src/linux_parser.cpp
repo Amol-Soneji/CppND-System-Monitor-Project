@@ -84,9 +84,9 @@ float LinuxParser::MemoryUtilization()
       std::istringstream parseStream(parsingLine);
       while(parseStream >> tag >> value)
       {
-        if(tag.compare("MemTotal"))
+        if(tag.compare("MemTotal") == 0)
           totalMem = value;
-        if(tag.compare("MemFree"));
+        if(tag.compare("MemFree") == 0);
           freeMem = value;
       }
     }
