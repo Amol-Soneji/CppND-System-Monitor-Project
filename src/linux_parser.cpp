@@ -2,7 +2,6 @@
 #include <unistd.h>
 #include <string>
 #include <vector>
-#include <iostream>//For debugging.  
 
 #include "linux_parser.h"
 
@@ -10,7 +9,6 @@ using std::stof;
 using std::string;
 using std::to_string;
 using std::vector;
-using std::cout;//For debugging.  
 
 // DONE: An example of how to read data from the filesystem
 string LinuxParser::OperatingSystem() {
@@ -50,14 +48,12 @@ string LinuxParser::Kernel() {
 
 // BONUS: Update this to use std::filesystem
 vector<int> LinuxParser::Pids() {
-  cout << "Looking at Pids() \n";
   vector<int> pids;
   DIR* directory = opendir(kProcDirectory.c_str());
   struct dirent* file;
   while ((file = readdir(directory)) != nullptr) {
     // Is this a directory?
     if (file->d_type == DT_DIR) {
-      // Is every character of the name a digit?
       string filename(file->d_name);
       if (std::all_of(filename.begin(), filename.end(), isdigit)) {
         int pid = stoi(filename);
@@ -72,7 +68,6 @@ vector<int> LinuxParser::Pids() {
 // TODO: Read and return the system memory utilization
 float LinuxParser::MemoryUtilization() 
 {
-  cout << "Looking at Memoryutilization() \n";
   string parsingLine, totalMem, freeMem, tag, value;
   float usedMem;
   std::ifstream parseFileStream(kProcDirectory + kMeminfoFilename);
@@ -91,8 +86,6 @@ float LinuxParser::MemoryUtilization()
       }
     }
   }
-  cout << totalMem + "\n";
-  cout << freeMem + "\n";
   usedMem = std::stof(totalMem) - std::stof(freeMem);
   return (usedMem / std::stof(totalMem));
 }
@@ -100,7 +93,6 @@ float LinuxParser::MemoryUtilization()
 // TODO: Read and return the system uptime
 long LinuxParser::UpTime() 
 {
-  cout << "Looking at UpTime() \n";
   string parsingLine;
   string uptimeString;
   std::ifstream parseFileStream(kProcDirectory + kUptimeFilename);
@@ -114,14 +106,13 @@ long LinuxParser::UpTime()
 }
 
 // TODO: Read and return the number of jiffies for the system
-long LinuxParser::Jiffies() { cout << "Looking at Jiffies() \n";
+long LinuxParser::Jiffies() { //cout << "Looking at Jiffies() \n";
   return ActiveJiffies() + IdleJiffies(); }
 
 // TODO: Read and return the number of active jiffies for a PID
 // REMOVE: [[maybe_unused]] once you define the function
 long LinuxParser::ActiveJiffies(int pid) //Accordin to man7.org for the man page of "/proc" the variables involved in the calc already have their clockticks divided by _SC_CLK_TCK.  
 {
-  cout << "Looking at ActiveJiffies(int) \n";
   string parseLine, a, b, c, d, e, f, g, h, i, j, k, l, m, userTime, sysTime, childUserTime, childSysTime;
   std::ifstream parseFileStream(kProcDirectory + std::to_string(pid) + kStatFilename);
   if(parseFileStream.is_open())
@@ -129,15 +120,13 @@ long LinuxParser::ActiveJiffies(int pid) //Accordin to man7.org for the man page
     std::getline(parseFileStream, parseLine);
     std::istringstream parseStream(parseLine);
     parseStream >> a >> b >> c >> d >> e >> f >> g >> h >> i >> j >> k >> l >> m >> userTime >> sysTime >> childUserTime >> childSysTime;
-    return ((std::stol(userTime)) + (std::stol(sysTime)) + (std::stol(childUserTime)) + (std::stol(childSysTime)));
+    return ((std::stol(userTime)) + (std::stol(sysTime))+ (std::stol(childUserTime)) + (std::stol(childSysTime)));//Unable to find reason for why it goes to negative sometimes.  
   }
-  cout << "Eror found filestream not open!  \n";
 }
 
 // TODO: Read and return the number of active jiffies for the system
 long LinuxParser::ActiveJiffies() 
 {
-  cout << "Looking at ActiveJiffies.  \n";
   string parseLine, cpuTag, userTag, niceTag, systemTag, idleTag, ioWaitTag, irqTag, softIRQTag, stealTag;
   long activeTUnits;
   std::ifstream parseFileStream(kProcDirectory + kStatFilename);
@@ -162,7 +151,6 @@ long LinuxParser::ActiveJiffies()
 // TODO: Read and return the number of idle jiffies for the system
 long LinuxParser::IdleJiffies() 
 {
-  cout << "Looking at IdleJiffies() \n";
   string parseLine, cpuTag, userTag, niceTag, systemTag, ildeTag, ioWaitTag;
   long idleTUnits;
   std::ifstream parseFileStream(kProcDirectory + kStatFilename);
@@ -184,7 +172,6 @@ long LinuxParser::IdleJiffies()
 // TODO: Read and return CPU utilization
 vector<string> LinuxParser::CpuUtilization() 
 {
-  cout << "Looking at CPUUtlization() \n";
   vector<string> utilization(1);
   utilization[0] = std::to_string(((float)ActiveJiffies()) / ((float)Jiffies()));
   return utilization;
@@ -193,7 +180,6 @@ vector<string> LinuxParser::CpuUtilization()
 // TODO: Read and return the total number of processes
 int LinuxParser::TotalProcesses() 
 {
-  cout << "Looking at TotalProcesses() \n";
   string parsingline, tag, value;
   std::ifstream parseFileStream(kProcDirectory + kStatFilename);
   if(parseFileStream.is_open())
@@ -228,7 +214,6 @@ int LinuxParser::RunningProcesses()
       }
     }
   }
-  cout << "Error found.  File not open!  \n";
   return std::stoi(value); //Although there will always be a procs_running in the stat file, the compiler does not know this nor does it know what I am trying to do, and if the return statment here is not placed in the code, the compiler may complain.  
 }
 
@@ -236,7 +221,6 @@ int LinuxParser::RunningProcesses()
 // REMOVE: [[maybe_unused]] once you define the function
 string LinuxParser::Command(int pid) 
 {
-  cout << "Looking at Command(int) \n";
   string parsingLine, command;
   std::ifstream parseFileStream(kProcDirectory + std::to_string(pid) + kCmdlineFilename);
   if(parseFileStream.is_open())
@@ -246,7 +230,6 @@ string LinuxParser::Command(int pid)
       command = "N/A";
     else
       command = parsingLine;
-    cout << command + "\n";
   }
   return command;
 }
@@ -255,7 +238,6 @@ string LinuxParser::Command(int pid)
 // REMOVE: [[maybe_unused]] once you define the function
 string LinuxParser::Ram(int pid) 
 {
-  cout << "Looking at Ram(int) \n";
   string parsingLine, usage, tag, value;
   std::ifstream parseFileStream(kProcDirectory + std::to_string(pid) + kStatusFilename);
   if(parseFileStream.is_open())
@@ -269,17 +251,14 @@ string LinuxParser::Ram(int pid)
         if(tag.compare("VmSize") == 0) // The VmSize field represents the memory usage of the process.  
         {
           
-          int usageInMB = std::stoi(value) / 1024;
+          int usageInMB = std::stoi(value) / 1000;
           usage = std::to_string(usageInMB);
-          cout << "proc mem usage is " + usage + "\n";
           return usage;
         }
-        cout << "Pid to instpect is " + std::to_string(pid) + "\n";
       } 
     }
     return "0";//Some system proccesses may not display ram usage. 
   }
-  cout << "Something went wrong here in Ram (int).  \n";
   return usage; //There are instances on some flavors of Linux where VmSize is not listed in the status file of a process.  An example would be a system task running on Kali Linux.  
 }
 
@@ -309,7 +288,6 @@ string LinuxParser::Uid(int pid)
 // REMOVE: [[maybe_unused]] once you define the function
 string LinuxParser::User(int pid) 
 {
-  cout << "Looking at User(int) \n";
   string UID = Uid(pid);
   string parsingLine, user, uValue;
   std::ifstream parseFileStream(kPasswordPath);
@@ -330,7 +308,6 @@ string LinuxParser::User(int pid)
       }
     }
   }
-  cout << "could not open file \n";
   return user; //Although there always will be a user for every UID that invoked a process, the compiler does not know that or what I am trying to do, and the compiler will throw an error if this return statement does not exist.  
 }
 
@@ -338,7 +315,6 @@ string LinuxParser::User(int pid)
 // REMOVE: [[maybe_unused]] once you define the function
 long LinuxParser::UpTime(int pid) 
 {
-  cout << "Looking at UpTime(int) \n";
   string versionToParse = Kernel();
   string bigRelease, release, subRelease;
   std::replace(versionToParse.begin(), versionToParse.end(), '.', ' ');
@@ -346,7 +322,6 @@ long LinuxParser::UpTime(int pid)
   versStreamParse >> bigRelease >> release >> subRelease;
   if(((std::stoi(bigRelease)) > 2) || ((std::stoi(bigRelease) == 2) && (std::stoi(release) > 5))) //No need to do diving by clockticks in Linux version 2.6 and later, according to man page documentation.  
   {
-    cout << "inside if block of UpTime(int) \n";
     string parsingLine, a, b, c, d, e, f, g, h, i, j, k, l, m, userTime, sysTime, childUserTime, childSysTime, n, o, p, q, startTime;
     std::ifstream parseFileStream(kProcDirectory + std::to_string(pid) + kStatFilename);
     if(parseFileStream.is_open())
@@ -359,7 +334,6 @@ long LinuxParser::UpTime(int pid)
   }
   else
   {
-    cout << "Inside else block of UpTime(int) \n";
     string parsingLine, a, b, c, d, e, f, g, h, i, j, k, l, m, userTime, sysTime, childUserTime, childSysTime, n, o, p, q, startTime;
     std::ifstream parseFileStream(kProcDirectory + std::to_string(pid) + kStatFilename);
     if(parseFileStream.is_open())

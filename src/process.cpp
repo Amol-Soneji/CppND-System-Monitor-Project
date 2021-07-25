@@ -20,7 +20,7 @@ int Process::Pid()
 // TODO: Return this process's CPU utilization
 float Process::CpuUtilization() 
 {
-    cpuUtil = 100 * (((float) LinuxParser::ActiveJiffies(Pid())) / ((float) LinuxParser::UpTime(Pid())));
+    cpuUtil = ((float) LinuxParser::ActiveJiffies(Pid())) / ((float) LinuxParser::UpTime(Pid()));
     return cpuUtil;
 }
 
@@ -66,7 +66,6 @@ long int Process::UpTime()
 // REMOVE: [[maybe_unused]] once you define the function
 bool Process::operator<(Process const& a) const 
 {
-    
     if(a.cpuUtil < cpuUtil)
         return true;
     else

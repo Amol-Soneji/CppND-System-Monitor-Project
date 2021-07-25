@@ -37,7 +37,7 @@ vector<Process>& System::Processes()
         if(i != 0)
         {
             processes_.push_back(p);
-            for(int j = (pidVector.size() - 1); j > -1; j--)
+            for(long j = (processes_.size() - 1); j > -1; j--)
             {
                 if(processes_[j] < p)
                     std::swap(processes_[(processes_.size() - 1)], processes_[j]);
