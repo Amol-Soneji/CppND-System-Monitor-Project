@@ -289,7 +289,7 @@ string LinuxParser::Uid(int pid)
 string LinuxParser::User(int pid) 
 {
   string UID = Uid(pid);
-  string parsingLine, user, uValue;
+  string parsingLine, user, otherValue, uValue;
   std::ifstream parseFileStream(kPasswordPath);
   if(parseFileStream.is_open())
   {
@@ -298,7 +298,7 @@ string LinuxParser::User(int pid)
       std::replace(parsingLine.begin(), parsingLine.end(), ' ', '_');
       std::replace(parsingLine.begin(), parsingLine.end(), ':', ' ');
       std::istringstream parseStream(parsingLine);
-      while(parseStream >> user >> uValue)
+      while(parseStream >> user >> otherValue >> uValue)
       {
         if(uValue.compare(UID) == 0)
         {
