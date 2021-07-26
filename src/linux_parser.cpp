@@ -122,7 +122,7 @@ long LinuxParser::ActiveJiffies(int pid) //Accordin to man7.org for the man page
     std::getline(parseFileStream, parseLine);
     std::istringstream parseStream(parseLine);
     parseStream >> a >> b >> c >> d >> e >> f >> g >> h >> i >> j >> k >> l >> m >> userTime >> sysTime >> childUserTime >> childSysTime;
-    return ((std::stol(userTime)) + (std::stol(sysTime)));//+ (std::stol(childUserTime)) + (std::stol(childSysTime)));//Unable to find reason for why it goes to negative sometimes.  
+    return ((std::stol(userTime) / sysconf(_SC_CLK_TCK)) + (std::stol(sysTime) / sysconf(_SC_CLK_TCK)));//+ (std::stol(childUserTime)) + (std::stol(childSysTime)));//Unable to find reason for why it goes to negative sometimes.  
   }
 }
 
@@ -240,32 +240,32 @@ string LinuxParser::Command(int pid)
 // REMOVE: [[maybe_unused]] once you define the function
 string LinuxParser::Ram(int pid) 
 {
-  string parsingLine, a, b, c, d, e, f, g, h, i, j, k, l, m, userTime, sysTime, childUserTime, childSysTime, n, o, p, q, startTime, vsize;//usage, tag, value;
-  //std::ifstream parseFileStream(kProcDirectory + std::to_string(pid) + kStatusFilename);
-  std::ifstream parseFileStream(kProcDirectory + std::to_string(pid) + kStatFilename);//Checking if one of the fields in stat file could substitute.  field 23.
+  string parsingLine, usage, tag, value;//a, b, c, d, e, f, g, h, i, j, k, l, m, userTime, sysTime, childUserTime, childSysTime, n, o, p, q, startTime, vsize;
+  std::ifstream parseFileStream(kProcDirectory + std::to_string(pid) + kStatusFilename);
+  //std::ifstream parseFileStream(kProcDirectory + std::to_string(pid) + kStatFilename);//Checking if one of the fields in stat file could substitute.  field 23.
   if(parseFileStream.is_open())
   {
-    //while(std::getline(parseFileStream, parsingLine))
-    //{
-      //std::replace(parsingLine.begin(), parsingLine.end(), ':', ' ');
-      //std::istringstream parseStream(parsingLine);
-      //while(parseStream >> tag >> value)
-      //{
-        //if(tag.compare("VmSize") == 0) // The VmSize field represents the memory usage of the process.  
-        //{
-          //
-          //int usageInMB = std::stoi(value) / 1024;
-          //usage = std::to_string(usageInMB);
-          //return usage;
-        //}
-      //} 
+    while(std::getline(parseFileStream, parsingLine))
+    {
+      std::replace(parsingLine.begin(), parsingLine.end(), ':', ' ');
+      std::istringstream parseStream(parsingLine);
+      while(parseStream >> tag >> value)
+      {
+        if(tag.compare("VmRSS") == 0) // The VmRSS field represents the memory usage of the process.  
+        {
+          
+          int usageInMB = std::stoi(value) / 1024;
+          usage = std::to_string(usageInMB);
+          return usage;
+        }
+      } 
 
-    //}
-    //return "0";//Some system proccesses may not display ram usage. //In stat file those proccesses have 0 in field 23.  
-    std::getline(parseFileStream, parsingLine);
-    std::istringstream parseStream(parsingLine);
-    parseStream >> a >> b >> c >> d >> e >> f >> g >> h >> i >> j >> k >> l >> m >> userTime >> sysTime >> childUserTime >> childSysTime >> n >> o >> p >> q >> startTime >>vsize;
-    return std::to_string(std::stol(vsize) / 1000000);
+    }
+    return "0";//Some system proccesses may not display ram usage. //In stat file those proccesses have 0 in field 23.  
+    //std::getline(parseFileStream, parsingLine);
+    //std::istringstream parseStream(parsingLine);
+    //parseStream >> a >> b >> c >> d >> e >> f >> g >> h >> i >> j >> k >> l >> m >> userTime >> sysTime >> childUserTime >> childSysTime >> n >> o >> p >> q >> startTime >>vsize;
+    //return std::to_string(std::stol(vsize) / 1000000);
   }
   return std::to_string(0); //There are instances on some flavors of Linux where VmSize is not listed in the status file of a process.  An example would be a system task running on Kali Linux.  
 }
