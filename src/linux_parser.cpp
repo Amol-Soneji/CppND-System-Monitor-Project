@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <string>
 #include <vector>
+#include <iostream>//For debugging.  
 
 #include "linux_parser.h"
 
@@ -9,6 +10,7 @@ using std::stof;
 using std::string;
 using std::to_string;
 using std::vector;
+using std::cout;//For debugging.  
 
 // DONE: An example of how to read data from the filesystem
 string LinuxParser::OperatingSystem() {
@@ -120,7 +122,7 @@ long LinuxParser::ActiveJiffies(int pid) //Accordin to man7.org for the man page
     std::getline(parseFileStream, parseLine);
     std::istringstream parseStream(parseLine);
     parseStream >> a >> b >> c >> d >> e >> f >> g >> h >> i >> j >> k >> l >> m >> userTime >> sysTime >> childUserTime >> childSysTime;
-    return ((std::stol(userTime)) + (std::stol(sysTime))+ (std::stol(childUserTime)) + (std::stol(childSysTime)));//Unable to find reason for why it goes to negative sometimes.  
+    return ((std::stol(userTime)) + (std::stol(sysTime)));//+ (std::stol(childUserTime)) + (std::stol(childSysTime)));//Unable to find reason for why it goes to negative sometimes.  
   }
 }
 
@@ -251,7 +253,7 @@ string LinuxParser::Ram(int pid)
         if(tag.compare("VmSize") == 0) // The VmSize field represents the memory usage of the process.  
         {
           
-          int usageInMB = std::stoi(value) / 1000;
+          int usageInMB = std::stoi(value) / 1024;
           usage = std::to_string(usageInMB);
           return usage;
         }
@@ -320,20 +322,25 @@ long LinuxParser::UpTime(int pid)
   std::replace(versionToParse.begin(), versionToParse.end(), '.', ' ');
   std::istringstream versStreamParse(versionToParse);
   versStreamParse >> bigRelease >> release >> subRelease;
-  if(((std::stoi(bigRelease)) > 2) || ((std::stoi(bigRelease) == 2) && (std::stoi(release) > 5))) //No need to do diving by clockticks in Linux version 2.6 and later, according to man page documentation.  
-  {
-    string parsingLine, a, b, c, d, e, f, g, h, i, j, k, l, m, userTime, sysTime, childUserTime, childSysTime, n, o, p, q, startTime;
-    std::ifstream parseFileStream(kProcDirectory + std::to_string(pid) + kStatFilename);
-    if(parseFileStream.is_open())
-    {
-      std::getline(parseFileStream, parsingLine);
-      std::istringstream parseStream(parsingLine);
-      parseStream >> a >> b >> c >> d >> e >> f >> g >> h >> i >> j >> k >> l >> m >> userTime >> sysTime >> childUserTime >> childSysTime >> n >> o >> p >> q >> startTime;
-      return (UpTime() - (std::stol(startTime)));
-    }
-  }
-  else
-  {
+  //if(((std::stoi(bigRelease)) > 2) || ((std::stoi(bigRelease) == 2) && (std::stoi(release) > 5))) //No need to do diving by clockticks in Linux version 2.6 and later, according to man page documentation.  
+  //{
+  //  string parsingLine, a, b, c, d, e, f, g, h, i, j, k, l, m, userTime, sysTime, childUserTime, childSysTime, n, o, p, q, startTime;
+  //  std::ifstream parseFileStream(kProcDirectory + std::to_string(pid) + kStatFilename);
+  //  if(parseFileStream.is_open())
+  //  {
+  //    std::getline(parseFileStream, parsingLine);
+  //    std::istringstream parseStream(parsingLine);
+  //    parseStream >> a >> b >> c >> d >> e >> f >> g >> h >> i >> j >> k >> l >> m >> userTime >> sysTime >> childUserTime >> childSysTime >> n >> o >> p >> q >> startTime;
+  //    if(((UpTime() - (std::stol(startTime))) < 0) && ((UpTime() - (std::stol(startTime) / sysconf(_SC_CLK_TCK))) >= 0))
+  //    {
+  //      cout << pid << "\n";
+  //      cout << "Maybe I am wrong.  \n";//For Debugging.  
+  //    }
+  //    return (UpTime() - (std::stol(startTime)));
+  //  }
+  //}
+  //else
+  //{  For some odd reason it seems linux may not be dividing by _SC_CLK_TCK.  
     string parsingLine, a, b, c, d, e, f, g, h, i, j, k, l, m, userTime, sysTime, childUserTime, childSysTime, n, o, p, q, startTime;
     std::ifstream parseFileStream(kProcDirectory + std::to_string(pid) + kStatFilename);
     if(parseFileStream.is_open())
@@ -343,5 +350,5 @@ long LinuxParser::UpTime(int pid)
       parseStream >> a >> b >> c >> d >> e >> f >> g >> h >> i >> j >> k >> l >> m >> userTime >> sysTime >> childUserTime >> childSysTime >> n >> o >> p >> q >> startTime;
       return (UpTime() - ((std::stol(startTime)) / sysconf(_SC_CLK_TCK)));
     }
-  }
+  //}
 }

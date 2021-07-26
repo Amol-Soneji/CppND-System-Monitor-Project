@@ -3,6 +3,7 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <algorithm> //For reversing the order of the proccess list.  
 
 #include "process.h"
 #include "processor.h"
@@ -46,6 +47,7 @@ vector<Process>& System::Processes()
         else
             processes_.push_back(p);
     }
+    std::reverse(processes_.begin(), processes_.end());
     return processes_;
 }
 
