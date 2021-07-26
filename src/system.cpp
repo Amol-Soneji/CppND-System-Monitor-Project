@@ -38,10 +38,14 @@ vector<Process>& System::Processes()
         if(i != 0)
         {
             processes_.push_back(p);
+            int currentIndexP = processes_.size() - 1;
             for(long j = (processes_.size() - 1); j > -1; j--)
             {
                 if(processes_[j] < p)
-                    std::swap(processes_[(processes_.size() - 1)], processes_[j]);
+                {
+                    std::swap(processes_[currentIndexP], processes_[j]);
+                    currentIndexP = j;
+                }
             }
         }
         else
