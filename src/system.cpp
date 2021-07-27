@@ -26,15 +26,20 @@ Processor& System::Cpu()
 vector<Process>& System::Processes() 
 {
     vector<int> pidVector = LinuxParser::Pids();
-    for(int i = 0; i < pidVector.size(); i++)
+    for(unsigned int i = 0; i < pidVector.size(); i++)
     {
         Process p;
         p.setPid(pidVector[i]);
-        float c = p.CpuUtilization();
-        string r = p.Ram();
-        string u = p.User();
-        long int up = p.UpTime();
-        string cmd = p.Command();
+        float c {0};
+        c = p.CpuUtilization() + c;//CpuUtilization() returns something.  
+        string r {""};
+        r = p.Ram();//Ram() returns something.  
+        string u {""};
+        u = p.User();//User() returns something.  
+        long int up {0};
+        up = p.UpTime() + up;//UpTime returns something.  
+        string cmd {""};
+        cmd = p.Command();//Command returns something.  
         if(i != 0)
         {
             processes_.push_back(p);

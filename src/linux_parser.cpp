@@ -124,6 +124,7 @@ long LinuxParser::ActiveJiffies(int pid) //Accordin to man7.org for the man page
     parseStream >> a >> b >> c >> d >> e >> f >> g >> h >> i >> j >> k >> l >> m >> userTime >> sysTime >> childUserTime >> childSysTime;
     return ((std::stol(userTime) / sysconf(_SC_CLK_TCK)) + (std::stol(sysTime) / sysconf(_SC_CLK_TCK)));//+ (std::stol(childUserTime)) + (std::stol(childSysTime)));//Unable to find reason for why it goes to negative sometimes.  
   }
+  return 0; //Compiler will return a warning because it does not know that the if statment above will mostly always be true.  
 }
 
 // TODO: Read and return the number of active jiffies for the system
@@ -356,5 +357,6 @@ long LinuxParser::UpTime(int pid)
       parseStream >> a >> b >> c >> d >> e >> f >> g >> h >> i >> j >> k >> l >> m >> userTime >> sysTime >> childUserTime >> childSysTime >> n >> o >> p >> q >> startTime;
       return (UpTime() - ((std::stol(startTime)) / sysconf(_SC_CLK_TCK)));
     }
+  return 0; //Compiler does not know the if statment above will mostly always be true.  
   //}
 }
